@@ -23,6 +23,8 @@ app = Flask(__name__)
 
 @auth.verify_password
 def verify_password(username_or_token, password):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     #Try to see if it's a token first
     user_id = User.verify_auth_token(username_or_token)
     if user_id:
@@ -39,6 +41,8 @@ def verify_password(username_or_token, password):
 @app.route('/token')
 @auth.login_required
 def get_auth_token():
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     token = g.user.generate_auth_token()
     return jsonify({'token': token.decode('ascii')})
 
@@ -46,6 +50,8 @@ def get_auth_token():
 
 @app.route('/users', methods = ['POST'])
 def new_user():
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     username = request.json.get('username')
     password = request.json.get('password')
     if username is None or password is None:
@@ -65,6 +71,8 @@ def new_user():
 
 @app.route('/api/users/<int:id>')
 def get_user(id):
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     user = session.query(User).filter_by(id=id).one()
     if not user:
         abort(400)
@@ -73,6 +81,8 @@ def get_user(id):
 @app.route('/api/resource')
 @auth.login_required
 def get_resource():
+    DBSession = sessionmaker(bind=engine)
+    session = DBSession()
     return jsonify({ 'data': 'Hello, %s!' % g.user.username })
 
 
